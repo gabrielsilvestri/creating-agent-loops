@@ -4,6 +4,8 @@ Three loops built with this skill, end to end. They show the gate, the check typ
 
 These specs are written in English to document the skill. When you deliver to a user, write the whole spec in the user's language; keep only command tokens (`/goal`, `/loop`, file paths) verbatim.
 
+For brevity these examples show the core spec; a real delivery also carries the post-spec elements from the loop-spec template: the launch line with why the mechanism honors the stop, the stated-assumptions table (assumption, default, how to correct), and, for Maker -> Checker, the ready-to-paste checker brief with one pass example and one fail example.
+
 ---
 
 ## Example 1 - Functional, Maker -> Checker, run-until-true (`/goal`)

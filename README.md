@@ -11,10 +11,10 @@ An agent loop is an LLM that calls tools, checks the result, and repeats toward 
 When you ask for a loop, the skill walks a fixed process:
 
 1. **Gate** decides whether a loop is even the right tool. Most tasks are not loops; if yours is a predictable one-off, it tells you to just prompt once.
-2. **Interview** asks only the consequential questions: what "done" means, how it will verify, guardrails, cadence. Everything else gets a stated default.
+2. **Interview** explores the project first to answer what it can, then asks one thing at a time, each with a recommended answer you can just accept. It pins what "done" means, how it verifies, guardrails, and cadence; everything else gets a stated default.
 3. **Classify** the check type (Functional / Visual / Judgment / Human gate) and **derive** the loop shape (Solo / Maker to Checker / Manager to Helpers). A Judgment check always gets a separate scorer.
 4. **Pick the mechanism** matched to the stop condition: `/goal` to run until a condition is true, `/loop` for an interval, `/schedule` for an unattended cron, hooks for lifecycle events. It never picks a mechanism that cannot honor the stop.
-5. **Emit** a ready loop: GOAL, SUCCESS CRITERIA, LOOP PROTOCOL with a real VERIFY step, STATE, GUARDRAILS, STOP WHEN (success and a hard ceiling), ON STOP, plus the launch command and a cost cap.
+5. **Emit** a ready loop: GOAL, SUCCESS CRITERIA, LOOP PROTOCOL with a real VERIFY step, STATE, GUARDRAILS, STOP WHEN (success and a hard ceiling), ON STOP, plus the launch command, a cost cap, a stated-assumptions table, and (when a separate checker is used) a ready-to-paste checker brief with a pass and a fail example.
 6. **Build order** every time: get one manual run reliable, save it as a skill, wrap it in a loop, then schedule it. Never schedule an unproven loop.
 
 It always includes a hard stop, treats irreversible actions (delete, send, pay, deploy, merge) as a mandatory human gate, and is honest about cost (the metric that matters is cost per accepted change).

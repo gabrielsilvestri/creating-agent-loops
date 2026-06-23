@@ -36,11 +36,18 @@ ON STOP: [summarize what changed and what still fails. If the ceiling was hit
          to resume, do not discard progress.]
 ```
 
-After the spec, always add these three lines:
+After the spec, always add:
 
-- **Launch:** `[the exact command, e.g. /goal "..." or /loop 30m "..." or /schedule ...]`
+- **Launch:** `[the exact command, e.g. /goal "..." or /loop 30m "..." or /schedule ...]` plus one line on why this mechanism honors the stop condition
 - **Check type / shape:** `[Functional|Visual|Judgment|Human gate] / [Solo|Maker->Checker|Manager->Helpers]`
 - **Cost cap:** `[the hard ceiling restated, e.g. "max 8 passes; watch the first run"]`
+- **Assumptions:** a small table for everything you inferred or could not confirm, so the user can correct a wrong guess in one read:
+
+  | Assumption | Default chosen | How to correct |
+  |---|---|---|
+  | [what you assumed] | [the value used] | [what to tell you to change it] |
+
+- **Checker brief** (only when shape is Maker -> Checker): the exact rubric the separate scorer applies, written ready to paste, with at least one concrete example of a passing result and one of a failing result, so the gate can actually fail bad work.
 
 ---
 

@@ -15,6 +15,8 @@ This skill is a generator, not a catalog. For a catalog of pre-made loops to ada
 
 ## The process (follow in order, do not skip the gate)
 
+Create a todo for each step below and work them in order.
+
 ```dot
 digraph loop_build {
     "User has a goal" [shape=box];
@@ -47,16 +49,21 @@ A loop is worth the setup only when ALL FOUR are true. Assess from the user's go
 
 If a condition fails, recommend the matching cheaper path: a predictable one-off -> one good prompt; nothing can fail the work -> define a check first or do it by hand; the agent cannot finish it alone -> keep a human in the loop for the manual part; done is pure taste -> you decide each time, or build a rubric so it becomes checkable. If the work is irreversible AND unreviewable, do not loop it unattended. When in doubt, prefer the simplest thing that could work, and show it before any heavier version.
 
-### Step 1 - Interview: ask only the consequential questions
+### Step 1 - Interview: explore first, then ask one thing at a time
 
-First, detect the user's language from their message and use it for the whole interaction, the questions and the final spec. Restate the goal as one checkable sentence, then ask only the few things you cannot safely default. Batch them (use the AskUserQuestion tool when available); state your defaults rather than interrogating. The questions that matter:
+The interview is a short walk down a decision tree, not a form. Detect the user's language from their first message and use it throughout. Three rules:
 
-1. **What does "done" mean, concretely?** Push for something a machine or a rubric could check. "Every test in /tests passes" not "make it good". This becomes the success criteria.
-2. **How will it verify? (the check type)** The most important question. Pick one: Functional / Visual / Judgment / Human gate (Step 2 table). Confirm the check is actually runnable in this environment (the test, tool, or connector exists and the agent can reach it); a check the agent cannot run is not a check.
-3. **Guardrails** what must it never touch, and is there an irreversible step (delete, send, pay, deploy, merge)?
-4. **Cadence / trigger** run once until done, every N minutes/hours, on a daily/weekly schedule, or on an event?
+- **Explore before you ask.** Anything you can answer by looking, look: inspect the project (language, test/build command, file layout, which tools or connectors exist, git state) and answer from that. Only ask what exploration cannot settle.
+- **One question at a time, each with a recommended answer.** Lead with your recommendation so the user can just say yes; do not dump a form.
+- **Resolve dependencies in order**, because later choices hang off earlier ones:
 
-Do NOT ask about the loop shape; derive it in Step 2 from the check type and size. Derive the stop ceiling too (heuristic below) and confirm it; never leave it unset.
+1. **Goal -> done-definition.** Restate the goal as one checkable sentence. Push for something a machine or a rubric could check ("every test in /tests passes", not "make it good"). This becomes the success criteria.
+2. **Done-definition -> check type.** Pick Functional / Visual / Judgment / Human gate (Step 2). Confirm the check is actually runnable here (the test, tool, or connector exists and the agent can reach it); a check the agent cannot run is not a check.
+3. **Check type + size -> shape.** Derive it in Step 2; do not ask.
+4. **Cadence -> mechanism.** Run once until done, every N, on a schedule, or on an event (Step 3 derives the mechanism).
+5. **Guardrails.** What must it never touch, and is there an irreversible step (delete, send, pay, deploy, merge)?
+
+Derive the stop ceiling too (heuristic below) and confirm it; never leave it unset.
 
 **Stop-ceiling heuristic:** estimate how many passes the work plausibly takes, multiply by about 1.5, then clamp: minimum 3, maximum 20 for a solo loop, maximum 8 for maker/checker (the checker doubles per-pass cost). These caps are defaults: raise them when each pass is cheap (e.g. fast unit tests) and lower them when each pass is expensive. State the estimate and any raise. For a goal with no natural end ("keep the repo clean forever"), the loop must NOT run forever: bound each RUN with a per-run ceiling and put the recurrence in the cadence (a schedule), so every run is finite even though the schedule repeats.
 
@@ -123,7 +130,14 @@ STOP WHEN: <success> OR <hard ceiling: N passes / token budget / time>
 ON STOP: <summarize what changed and what still fails>
 ```
 
-Then add: the launch command, the chosen check type and shape in one line, and one cost/iteration-cap line. For a user who wants to run it by hand in any chat (no coding agent), offer the self-checking variant: PLAN, DO, VERIFY (score each criterion 1-10 against an external standard, not its own previous draft, brutally honest), DECIDE (all 8+ -> FINAL, else ITERATING and fix the weakest first). See `templates/worked-examples.md` for three fully worked loops.
+Then add, every time:
+- the **launch command** (exact), plus a one-line note on WHY this mechanism honors the stop condition;
+- the **check type and shape** in one line;
+- a one-line **cost / iteration cap**;
+- a **stated-assumptions table** (columns: assumption, default chosen, how to correct) for everything you inferred or could not confirm, so the user can fix any wrong guess in one read;
+- when the shape is Maker -> Checker, a **ready-to-paste checker brief**: the exact rubric the separate scorer applies, with at least one concrete example of a pass and one of a fail, so the gate is real and not vague. For a user who wants to run it by hand in any chat (no coding agent), offer the self-checking variant: PLAN, DO, VERIFY (score each criterion 1-10 against an external standard, not its own previous draft, brutally honest), DECIDE (all 8+ -> FINAL, else ITERATING and fix the weakest first). See `templates/worked-examples.md` for three fully worked loops.
+
+Before the user launches, present the filled spec and get a quick confirmation (skip the wait only if they told you to just do it). Fixing the spec is cheap; fixing a bad run is not.
 
 ### Step 5 - Hand off the build order, tell them to watch the first run
 
